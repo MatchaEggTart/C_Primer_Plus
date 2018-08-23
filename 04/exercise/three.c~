@@ -1,0 +1,10 @@
+#include <stdio.h>
+
+int main(void)
+{
+    float num;
+    printf("\ninput a float: _\b ");
+    scanf("%f", &num);
+    printf("so\n%.2f == %e\n", num, num);
+    return 0;
+}

@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <cytpe.h>
+
+int main(void)
+{
+    int ch;
+    int lower = 0, upper = 0;
+
+    while ((ch = getchar()) != EOF)
+    {
+        if (islower(ch))
+            lower++;
+        if (isupper(ch))
+            upper++;
+    }
+
+    printf("lower characters is %d\nupper characters is %d\n",
+           lower, upper);
+
+    return 0;
+}
