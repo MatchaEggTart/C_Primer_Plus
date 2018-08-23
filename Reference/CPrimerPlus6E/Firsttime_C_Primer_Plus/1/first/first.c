@@ -1,0 +1,10 @@
+#include<stdio.h>
+int main(void)
+{
+  int num;
+  scanf("%d",&num);
+  printf("I am a simple ");
+  printf("computer.\n");
+  printf("My favorite number is %d because it's first.\n",num);
+  return 0;
+}
