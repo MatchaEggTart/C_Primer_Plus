@@ -1,11 +1,14 @@
 /* Programming Exercise 11-3 */
 #include <stdio.h>
+#include <string.h>
 #define LEN 80
+#define STOP "quit"
 char * getword(char * str);
 int main(void)
 {
     char input[LEN];
-    while (getword(input) != NULL)
+    
+    while (getword(input) != NULL && strncmp(input, STOP, 4))
         puts(input);
     puts("Done.\n");
     return 0;
@@ -14,26 +17,18 @@ int main(void)
 
 char * getword(char * str)
 {
-    int ch;
+    int i, j;
     char * orig = str;
-    // skip over initial whitespace
-    while ((ch = getchar()) != EOF && isspace(ch))
-        continue;
-    if (ch == EOF)
-        return NULL;
-    else
-        *str++ = ch;
-    // first character in word
-    // get rest of word
-    while ((ch = getchar()) != EOF && !isspace(ch))
-        *str++ = ch;
-    *str = '\0';
-    if (ch == EOF)
-        return NULL;
-    else
+    
+    fgets(str, LEN, stdin);
+    for (i = 0; isspace(*(str + i)); i++);
+    if (isspace(*(str + i + 1)))
+        for (; !isspace(*(str + i)); i++);
+    for (j = i; !isspace(*(str + j)); j++)
     {
-        while (ch != '\n')
-            ch = getchar();
-        return orig;
+        *(str + j - i) = *(str + j);
     }
+    *(str + j - i) = '\0';
+
+    return orig;
 }
