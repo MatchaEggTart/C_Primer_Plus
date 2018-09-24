@@ -11,6 +11,7 @@ int main(void)
     return 0;
 }
 #include <ctype.h>
+
 char * getword(char * str)
 {
     int ch;
