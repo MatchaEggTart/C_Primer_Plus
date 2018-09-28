@@ -1,4 +1,0 @@
-echo_eof < words
-echo_eof > mywords
-echo_eof < mywords > savewords
-echo_eof > savewords < mywords
