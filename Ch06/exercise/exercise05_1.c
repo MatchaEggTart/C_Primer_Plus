@@ -1,0 +1,29 @@
+#include <stdio.h>
+
+int main(void)
+{
+    int row, i, j, k;
+    char ch[10];
+
+    scanf("%d", &row);
+    for (i = 0; i < row; i++)
+    {
+
+        for (k = row - 1; k > i; k--)
+        {
+            printf(" ");
+        }
+        for (j = 0; j <= i; j++)
+        {
+            ch[j] = 'A' + j;
+            printf("%c", ch[j]);
+        }
+        for (j = i; j > 0; j--)
+        {
+            printf("%c", ch[j] - 1);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}

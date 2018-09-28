@@ -1,0 +1,20 @@
+#include <stdio.h>
+
+int main(void)
+{
+    int row, i, j;
+    char ch[10];
+
+    scanf("%d", &row);
+    for (i = 0; i < row; i++)
+    {
+        for (j = row; j > i; j--)
+        {
+            printf(" ");
+            for (k = 0; k < i; ch[k] = 'A' + k +i, k++)
+                printf("%c", ch[k]);
+        printf("\n");
+    }
+
+    return 0;
+}
