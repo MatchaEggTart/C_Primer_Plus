@@ -1,8 +1,0 @@
-import re
-
-data = raw_input('word: ')
-
-if re.search("^(?=.\d)(?([a-z]).*?(A-Z).*$', data):
-    print(data)
-else:
-    print('123')
