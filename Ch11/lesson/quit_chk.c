@@ -16,4 +16,7 @@ int main(void)
     {
         ct++;
     }
+    printf("%d strings entered\n", ct);
+
+    return 0;
 }

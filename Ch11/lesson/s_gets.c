@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include <stdio.h> 	//Please gcc -c s_gets.c
+			//make s_gets.o to use
 
 char * s_gets(char * st, int n)
 {
@@ -11,11 +12,11 @@ char * s_gets(char * st, int n)
         while (st[i] != '\n' && st[i] != '\0')
             i++;
         if (st[i] == '\n')
-            st[i] == '\0';
+            st[i] = '\0';
         else
             while (getchar() != '\n')
                 continue;
     }
-
+    
     return ret_val;
 }
