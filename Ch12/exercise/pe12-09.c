@@ -13,7 +13,7 @@ int main(void)
     scanf("%d", &n);
     printf("Enter %d words now:\n", n);
     words = (char *) malloc(SIZE * sizeof(char));
-    ptd = (char **) malloc(sizeof(char *) * n);
+    ptd = (char **) malloc(n * sizeof(char *));
 
     for (i = 0; i < n; i++)
     {
@@ -28,7 +28,8 @@ int main(void)
     {
 	printf("%s\n", ptd[i]);
     }
-
+    if (ptd[0][1] == '\0')
+        printf("\nYes\n");
 
     for (i = 0; i < n; i++)
     {
