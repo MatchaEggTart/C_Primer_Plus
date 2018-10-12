@@ -19,8 +19,8 @@
 *** 分为：块作用域、函数作用域、函数原型作用域、文件作用域。
 *** block scope
 **** {} 早期块的范围，C99后
-for (int i = 0; i < 10; i++)
-    printf ("%d\n", i);
+**** for (int i = 0; i < 10; i++)
+****     printf ("%d\n", i);
 **** 这个也是块，程序离开这个循环后i就无法访问了
 *** function scope
 **** 仅仅用于goto语句的标签，作用域也延伸至整个函数
@@ -102,7 +102,11 @@ x = rand() % 6 + 1；
 ** malloc()
 *** 返回类型是指针，分配好内存后，返回他的地址，
 *** VLA跟malloc()都是动态数组(dynamic array)
-*** words = (char *) malloc(SIZE * sizeof(char));
+**** words = (char *) malloc(SIZE * sizeof(char));
+**** ptd = (char **) malloc(n * sizeof(char *));		//分配n个指向指向char指针的指针
+**** ptd = (char **) malloc(sizeof(char *) * n);		//与上面一个一样
+**** malloc()多出来部分是空字符
+*** malloc的参数是分配内存字节数
 ** free()
 *** malloc()后必须使用free(),把空间释放，不然用以发生memory leak(内存泄漏)P.400
 ** EXIT_SUCCESSS
