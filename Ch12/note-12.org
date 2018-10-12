@@ -106,7 +106,7 @@ x = rand() % 6 + 1；
 **** ptd = (char **) malloc(n * sizeof(char *));		//分配n个指向指向char指针的指针
 **** ptd = (char **) malloc(sizeof(char *) * n);		//与上面一个一样
 **** malloc()多出来部分是空字符
-*** malloc的参数是分配内存字节数
+*** malloc的参数是分配内存字节数(等于分配多少个类型，可以是n个指向char的指针，那就分配n个存储指针的空间，表达式如上)
 ** free()
 *** malloc()后必须使用free(),把空间释放，不然用以发生memory leak(内存泄漏)P.400
 ** EXIT_SUCCESSS
