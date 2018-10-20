@@ -194,3 +194,6 @@
 ******     printf("The value there is %f.\n", value);
 ******     printf("Next index (out of range to quit):\n");
 ****** }
+**** 
+** 练习题
+**** VLA要在其他变量初始化后才能声明，不然数组个数很奇妙——————pe13-14.c
