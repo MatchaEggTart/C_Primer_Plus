@@ -1,0 +1,6 @@
+const的位置问题，从左到右去看，
+ex:
+const char * p;		//p is a pointer to a const char, 数值不可以改，但指针可以改
+char * const p;		//p is a const pointer to a char, 指针不可以改，但数值可以改
+
+参考:https://blog.csdn.net/wangbenqiang/article/details/67635038
