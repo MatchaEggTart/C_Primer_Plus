@@ -1,32 +1,44 @@
 #include <stdio.h>
 #define FUNDLEN 50
+#define N 2
 
 struct funds {
-    char bank[FUNDLEN];
-    double bankfund;
-    char save[FUNDLEN];
-    double savefund;
+    char	bank[FUNDLEN];
+    double	bankfund;
+    char	save[FUNDLEN];
+    double	savefund;
 };
 
-double sum(struct funds *);
+double sum(const struct funds money [], int n);
 
 int main(void)
 {
-    struct funds stan = {
-        "Garlic-Melon Bank",
-        4032.27,
-        "Lucky's Saving and Loan",
-        8543.94
+    struct funds jones[N] = {
+        {
+            "Garlic-Melon Bank",
+            4032.27,
+            "Lucky's Saving and Loan",
+            8543.94
+        },
+        {
+            "Honest Jack's Bank",
+            3620.88,
+            "Party Time Savings",
+            3802.91
+        }
     };
-    struct funds * point;
-    point = &stan;
-    printf("Stan has a total of $%.2f\n",
-           sum(point));
+    printf("The Joneses have a total of $%.2f.\n", sum(jones, N));
 
     return 0;
 }
 
-double sum(struct funds * money)
+double sum(const struct funds money[], int n)
 {
-    return (money->bankfund + money->savefund);
+    double total;
+    int i;
+
+    for (i = 0; i < N; i++)
+        total += money[i].bankfund + money[i].savefund;
+
+    return total;
 }
