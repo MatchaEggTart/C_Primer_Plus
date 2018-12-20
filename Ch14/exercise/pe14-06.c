@@ -17,7 +17,6 @@ struct softball {
     int hit_times;
     int run_bar_times;
     int rbi;
-    //    double hit_rate;
 };
 
 int main(int argc, char * argv [])
@@ -35,11 +34,11 @@ int main(int argc, char * argv [])
     bool begin_write = false;
 
     int find_name;
-    int all_play_times;
-    int all_hit_times;
-    int all_run_bar_times;
-    int all_rbi;
-    double all_hit_rate;
+    int all_play_times = 0;
+    int all_hit_times = 0;
+    int all_run_bar_times = 0;
+    int all_rbi = 0;
+    double all_hit_rate = 0.00;
     
     if (argc != 3 && argv[1][0] != '-')
     {
@@ -108,7 +107,7 @@ int main(int argc, char * argv [])
             {
                 strcpy(data[count].fname, data[index].fname);
                 strcpy(data[count].lname, data[index].lname);
-                printf("N.%2d is exist\nName is %s %s", data[count].player_number,
+                printf("N.%2d is exist\nName is %s %s", data[index].player_number,
                        data[count].fname, data[count].lname);
             }
             else
@@ -119,13 +118,14 @@ int main(int argc, char * argv [])
                 puts("Enter the last name:");
                 s_gets(data[count].lname, NLEN);
             }
-            data[index].player_number = number;
+            data[count].player_number = number;
             puts("Enter the play times");
             scanf("%d", &data[count].play_times);
             eatline();
             puts("Enter the hit times");
             scanf("%d", &data[count].hit_times);
             eatline();
+            printf("The wrong number is %d", data[count].hit_times);
             puts("Enter the run bar times");
             scanf("%d", &data[count].run_bar_times);
             eatline();
@@ -142,50 +142,51 @@ int main(int argc, char * argv [])
                 printf("%2d %10s %-10s %2d %2d %2d %2d\n",
                        data[index].player_number, data[index].fname, data[index].lname,
                        data[index].play_times, data[index].hit_times, data[index].run_bar_times,
-                       data[count].rbi);
+                       data[index].rbi);
+
             fwrite(&data[filecount], size, count - filecount, fp);
         }
         else
             puts("Nothing\n");
-        find_number = false;
-        puts("Whice one's averger you want to know\nEnter his number");
-        scanf("%d", &number);
-        eatline();
+    }
+    find_number = false;
+    puts("Whice one's averger you want to know\nEnter his number");
+    scanf("%d", &number);
+    eatline();
+    for (index = 0; index < count; index++)
+    {
+        if (number == data[index].player_number)
+        {
+            find_number = true;
+            find_name = index;
+            break;
+        }
+    }
+        
+    if (find_number)
+    {
         for (index = 0; index < count; index++)
         {
             if (number == data[index].player_number)
             {
-                find_number = true;
-                find_name = index;
-                break;
+                all_play_times += data[index].play_times;
+                all_hit_times += data[index].hit_times;
+                printf("all_hit_times is %d\n,data[index].hit_times is %d\n",
+                       all_hit_times, data[index].hit_times);
+                all_run_bar_times += data[index].run_bar_times;
+                all_rbi += data[index].rbi;
             }
         }
-        if (find_number)
-        {
-            for (index = 0; index < count; index++)
-            {
-                if (number == data[index].player_number)
-                {
-                    all_play_times += data[index].play_times;
-                    all_hit_times += data[index].hit_times;
-                    all_run_bar_times += data[index].run_bar_times;
-                    all_rbi += data[index].rbi;
-                }
-            }
-            all_hit_rate = all_hit_times / all_play_times;
-            printf("%2d %10s %-10s %2d %2d %2d %2d\nThe hit_rate is %.3lf",
-                   data[find_name].player_number, data[find_name].fname,
-                   data[find_name].lname, all_play_times,
-                   all_hit_times, all_run_bar_times, all_rbi, all_hit_rate);
-        }
-        else
-            puts("We can't fine this number");
-        puts("Bye");
+        all_hit_rate = (double)all_hit_times / (double)all_play_times;
+        printf("%2d %10s %-10s %2d %2d %2d %2d\nThe hit_rate is %.3lf",
+               data[find_name].player_number, data[find_name].fname,
+               data[find_name].lname, all_play_times,
+               all_hit_times, all_run_bar_times, all_rbi, all_hit_rate);
 
-        fclose(fp);
-        return 0;
     }
-    puts("Bye!");
+    else
+        puts("We can't fine this number");
+    puts("\nBye");
     fclose(fp);
     
     return 0;
