@@ -16,8 +16,8 @@ struct data {
 struct flight
 {
     int plane_id;
-    struct data;
-}
+    struct data data_basic;
+};
 
 char showmenu(void);
 void empty_seat(struct data *);
@@ -25,7 +25,7 @@ void empty_number(struct data *);
 void alphabetical_show(struct data *);
 void assign(struct data *);
 void delete(struct data *);
-//void confirmed(struct data *);
+void confirmed(struct data *);
 
 void eatline(void);
 char * s_gets(char * st, int n);
@@ -62,13 +62,13 @@ int main(void)
         count++;
     }
     fclose(fp);
-    
+
     choice = showmenu();
-    while (choice != 'f')
+    while (choice != 'g')
     {
         while (strchr("abcdefm", choice) == NULL)
         {
-            puts("\n\n\nEnter a, b, c, d, e or f");
+            puts("\n\n\nEnter a, b, c, d, e, f or g");
             choice = showmenu();
         }
 
@@ -84,8 +84,8 @@ int main(void)
                 break;
             case 'e' : delete(&air_giant[0]);
                 break;
-                //          case 'f' : confirmed(&air_giant[0]);
-                //                break;
+            case 'f' : confirmed(&air_giant[0]);
+                break;
             case 'm' : showdata(&air_giant[0]);
                 break;
         }
@@ -99,6 +99,22 @@ int main(void)
     }
     fwrite(&air_giant[0], size, SEAT_SIZE, fp);
     fclose(fp);
+}
+
+void confirmed(struct data * pst)
+{
+    int count ;
+    char acha = '\n';
+    printf("Which seat you want to confirm");
+    scanf("%d", &count);
+    eatline();
+    count--;
+    printf("%-15d %-10s %-10s %d\n", pst[count].seat_number,
+           pst[count].fname, pst[count].lname,
+           pst[count].booking);
+    printf("your want to confirm?(y or n)\n");
+    if ((acha = getchar()) == 'y')
+        pst[count].confirm = true;
 }
 
 void empty_seat(struct data * pst)
@@ -118,7 +134,7 @@ void empty_seat(struct data * pst)
 void empty_number(struct data * pst)
 {
     int count = 0;
-    int num_empty_seat = 0;
+    // int num_empty_seat = 0;
     puts("\n\n\nHere is the empty seats's number\n");
     for (count = 0; count < SEAT_SIZE; count++)
     {
@@ -209,7 +225,8 @@ char showmenu(void)
     puts("c) Show alphabetical list of seats");
     puts("d) Assign a customer to a seat assignment");
     puts("e) Delete a seat assignment");
-    puts("f) Quit");
+    puts("f) Confirm");
+    puts("g) Quit");
     puts("\n\n\n");
 
     ch = getchar();
@@ -246,12 +263,12 @@ void eatline(void)
 void showdata(struct data * pst)
 {
     int n;
-    printf("SeatNumber  FirstName  LastName   Book    Confirmed       address\n");
+    printf("SeatNumber  FirstName  LastName   Book     Confirmed       address\n");
     for (n = 0; n < SEAT_SIZE; n++)
     {
-        printf("%-11d %-10s %-10s   %d    %-12s   %p\n", (pst+n)->seat_number,
+        printf("%-11d %-10s %-10s   %d%s   %p\n", (pst+n)->seat_number,
                (pst+n)->fname, (pst+n)->lname, (pst+n)->booking,
-               (pst+n)->confirm ? "Confirmed" : "Unconfirmed", (pst + n));
+               (pst+n)->confirm ? "      Confirmed " : "     Unconfirmed", (pst + n));
     }
 }
 

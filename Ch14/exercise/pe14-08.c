@@ -37,7 +37,7 @@ int main(void)
         air_giant[count].seat_number = count + 1;
         //        printf("%p\n", &air_giant[0] + count);
     }
-    
+
 
     choice = showmenu();
     while (choice != 'f')
@@ -84,7 +84,7 @@ void empty_seat(struct data * pst)
 void empty_number(struct data * pst)
 {
     int count = 0;
-    int num_empty_seat = 0;
+    // int num_empty_seat = 0;
     puts("\n\n\nHere is the empty seats's number\n");
     for (count = 0; count < SEAT_SIZE; count++)
     {

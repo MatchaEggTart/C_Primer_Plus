@@ -1,0 +1,27 @@
+* 
+** 与何使用指针调用函数
+#+BEGIN_SRC C
+#include <stdio.h>
+
+void showmenu_a(void);
+void showmenu_b(int);
+
+int main(void)
+{
+    void (* pf_a)(void);
+    void (* pf_b)(int);
+
+    pf_a = showmenu_a;
+    pf_b = showmenu_b;
+    int a = 2;
+
+    (*pf_a)();
+    pf_a();
+    pf_b(a);
+    (*pf_b)(a);
+
+    return 0;
+
+}
+
+#+END_SRC

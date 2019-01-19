@@ -1,0 +1,1307 @@
+* 14. 结构和其他数据形式
+-C提供了结构变量(structure variable)表示数据的方法。
+
+
+** 14.1 示例问题:创建图书目录
+
+**** 多种数据形式，保持信息独立
+
+#+BEGIN_SRC c
+struct book {
+    char title[MAXTITL];
+    char author[MAXAUTL];
+    float value;
+};
+#+END_SRC
+
+**** Menber or Field
+***** 每个部分都称为成员(menber)或字段(field),有3个部分,title、author和value。
+*** 
+
+** 14.2 建立结构声明
+
+#+BEGIN_SRC C
+struct book {
+    char title[MAXTITL];
+    char author[MAXAUTL];
+    float value;
+};
+#+END_SRC
+
+**** structure declaration
+***** structure declaration(结构声明)描述了一个结构的组织布局。
+***** 可以把结构声明理解为一个模板，声明的时候并『没有』创建『实际的数据对象』，勾勒出结构是如何储存数据的。
+***** 标记
+****** book是个标记,后面可以声明
+#+BEGIN_SRC C
+struct book library;
+#+END_SRC
+****** book是结构布局，library是结构变量。
+***** 
+**** 结构声明后面的;
+***** {}; 声明后面记得加';'
+***** 
+**** 内部声明
+***** 如果把结构声明置于一个函数的内部，他的标记就只能限于该函数内部使用。如果声明置于函数外部，声明之后的所有函数都能使用它的标记。
+*** 
+** 14.3 定义结构变量
+
+**** 结构的『两层』含义
+***** 1)结构布局，告诉编译器如何表示数据，但是并没有让编译器为数据分配空间。
+***** 2)结构变量，编译器使用结构变量中的模板来分配空间，
+****** 看下面，根据book模板创建了一个名为library的结构变量，library内含一个MAXTITL个元素的char数组，一个内含MAXAUTL个元素的char数组，一个float类型的变量
+****** 这些储存空间都与library结合在一起
+#+BEGIN_SRC C
+#defien MAXTITL 30
+#defien MAXAUTL 30
+
+struct book {
+    char title[MAXTITL];
+    char author[MAXAUTL];
+    float value;
+};
+
+struct book library;
+#+END_SRC
+
+****** library占了 30 + 30 + 4 的bytes。
+*** 14.3.1 初始化结构
+**** 声明的时候，每个成员或者字段用";"分开。
+**** 初始化时候，每个成员或者字段用","分开。
+***** ex：
+#+BEGIN_SRC c
+struct book library = {
+    "The Pious Pirate and the Devious Damsel",
+    "Renee Vivotte",
+    1.95
+};
+#+END_SRC
+
+***** 如果初始化一个静态存储期的结构、初始化列表中的值必须是常量表达式。(意思是在函数外的结构初始化，都要用常量)
+***** 如果初始化一个自动存储器的话，变量都可以。
+**** 
+
+*** 14.2.2 访问结构成员
+
+**** 把结构当成个"超级数组"，可以控制类型，长度。
+**** 如何访问？
+***** 用".", ex
+***** library.title
+#+BEGIN_SRC C
+scanf("%d", &library.value);
+#+END_SRC
+***** .比&优先级高
+**** 
+
+*** 14.3.3 结构的初始化器
+
+**** designated initializer
+-初始化器
+
+***** 用法:只初始化或个成员。
+#+BEGIN_SRC C
+#defien MAXTITL 30
+#defien MAXAUTL 30
+
+struct book {
+    char title[MAXTITL];
+    char author[MAXAUTL];
+    float value;
+};
+
+struct book surprise = { .value = 10.99 };
+#+END_SRC
+***** 记得加'.'
+
+#+BEGIN_SRC C
+struct book gift = { .value = 18.90
+                     .author = "Philionna Pestle",
+                     0.25 };
+#+END_SRC
+
+***** gift.value最后结果是?
+****** 0.25
+****** 会被最后一次赋值覆盖
+**** 
+
+**** 
+
+**** 
+
+*** 
+** 14.4 结构数组
+**** 创建结构数组，如果是自动存储类别的对象，信息会存在stack(栈)中。
+***** 数组太大，需要太大的内存，可能会报错(1.栈太小	2.栈溢出)
+-解决方法(Borland C/C++)
+****** 1)要用编译器选项设置栈大小，以容纳结构数组
+****** 2)或者可以创建静态或外部数组(编译器就不会把数组放在栈中)
+****** 3)减小数组大小
+
+*** 14.4.1 声明结构数组
+#+BEGIN_SRC C
+struct book library[MAXBKS];
+#+END_SRC
+
+***** 数组名library本身不是结构名，它是一个数组名，里面的每个元素都是struct book的结构变量。(跟指针数组一样)
+**** 
+*** 14.4.2 标识结构数组的成员
+**** 正确写法
+#+BEGIN_SRC C
+library[4].value
+library[4].title[4]
+#+END_SRC
+**** 错误写法
+#+BEGIN_SRC C
+library.value[4]
+library[4].value[4]
+library.title[4]
+#+END_SRC
+**** 
+*** 14.4.3 程序讨论
+-manybooks.c
+#+BEGIN_SRC C
+while (count < MAXBKS && s_gets(library[count].title,MAXTITL) != NULL
+       && library[count].title[0] != '\0')
+#+END_SRC
+**** 先看书本数量超了没，没的话继续录入书本名，数据没有错误并且首字符不为空字符完成录入
+
+#+BEGIN_SRC C
+scanf("%f", &library[count++].value);
+while (getchar() != '\n')
+    continue;
+#+END_SRC
+**** scanf会把录入的数据抽走把ENTER留在下一项，会跳过下一项(ex: 12.50\n)，scanf把12.50抽走把ENTER留在输入序列中
+*** 
+** 14.5 嵌套结构
+-friend.c
+**** 结构嵌套结构
+#+BEGIN_SRC C
+struct names {
+    char first[LEN];
+    char last[LEN];
+};
+
+struct guy {
+    struct names handle;	//*********
+    char favfood[LEN];
+    char job[LEN];
+    float income;
+};
+#+END_SRC
+**** 
+** 14.6 指向结构的指针
+-friends.c
+**** 使用指向结构的指针的优点
+***** (1)指针容易操控(ex:排序)
+***** (2)结构不能作为参数传递给函数，指针可以
+***** (3)传递指针比结构要效率
+***** (4)一些用于表示数据的结构中包含指向其他结构的指针
+
+*** 14.6.1 声明和初始化结构指针
+**** 声明结构指针
+#+BEGIN_SRC C
+struct guy * him;
+#+END_SRC
+
+**** 如果barney是guy类型的结构变量，可以让him指向barney
+#+BEGIN_SRC C
+him = &barney;		//结构变量名不是地址，不能跟数组一样不加"&"
+him = barney;		//No
+
+char date[30];
+char * chpt;
+chpt = date;		//Yes
+
+him = &fellow[0];	//fellow是结构数组
+#+END_SRC
+
+**** 指针占用的空间
+#+BEGIN_SRC C
+#define LEN 20
+struct names {
+    char first[LEN];
+    char last[LEN];
+};
+
+struct guy {			//a struct name 'guy' use 84 bytes
+    struct names handle;	//40 bytes
+    char favfood[LEN];		//20 bytes
+    char job[LEN];		//20 bytes
+    float income;		//4 bytes
+};
+
+int main(void)
+{
+    struct guy fellow[2] = {
+            {
+                { "Ewen", "Villard" },
+                "grilled salmon",
+                "personality coach",
+                68112.00
+            },
+            {
+                { "Rodney", "Swillbelly" },
+                "tripe",
+                "tabloid editor",
+                432400.00
+            }
+    };
+    struct guy * him;	//pointer the struct
+    him = &fellow[0];
+...
+}
+#+END_SRC
+
+***** him + 1等于移动多少字节?
+****** 84 (20 + 20 + 4)
+****** 有些系统可能会有缝隙。把成员放在偶数地址上所以不全是84————p.451
+**** 
+*** 14.6.2 用指针访问成员
+**** 有两种方法访问指针
+***** (1) ->
+#+BEGIN_SRC C
+him = &fellow[0];
+scanf("%s", him->handle.first);
+#+END_SRC
+
+****** him->handle.first
+
+***** (2) *
+#+BEGIN_SRC C
+him = &fellow[0];
+scanf("%s", (*him).handle.first);
+#+END_SRC
+
+****** (*him).handle.first
+*** 
+** 14.7 向函数传递结构的信息
+**** 3种方法传递结构
+*** 14.7.1 传递结构成员
+-funds1.c
+**** 将结构成员的单个值的数据类型(int, char, float...)作为参数传递给接受该类型的函数.
+****** 
+#+BEGIN_SRC C
+#include <stdio.h>
+#define FUNDLEN 50
+
+struct funds {
+    char bank[FUNDLEN];
+    double bankfund;
+    char save[FUNDLEN];
+    double savefund;
+};
+
+double sum(double, double);			//***
+
+int main(void)
+{
+    struct funds stan = {
+        "Garlic-Melon Bank",
+        4032.27,
+        "Lucky's Saving and Loan",
+        8543.94
+    };
+    printf("Stan has a total of $%.2f\n",
+           sum(stan.bankfund, stan.savefund));	//***
+
+    return 0;
+}
+
+double sum(double a, double b)
+{
+    return (a + b);
+}
+#+END_SRC
+
+***** sum()函数更本不关心参数是否是结构成员,只关传入的数据类型是不是double
+**** 
+*** 14.7.2 传递结构的地址
+-funds2.c
+**** 使用结构的地址作为参数
+****** 
+#+BEGIN_SRC C
+#include <stdio.h>
+#define FUNDLEN 50
+
+//compare funds5.c, all send the address to other function
+struct funds {
+    char bank[FUNDLEN];
+    double bankfund;
+    char save[FUNDLEN];
+    double savefund;
+};
+
+double sum(const struct funds *);			//***
+
+int main(void)
+{
+    struct funds stan = {
+        "Garlic-Melon Bank",
+        4032.27,
+        "Lucky's Saving and Loan",
+        8543.94
+    };
+
+    printf("Stan has a total of $%.2f\n", sum(&stan));	//***
+
+    return 0;
+}
+
+double sum(struct funds * money)
+{
+    return (money->bankfund + money->savefund);
+}
+#+END_SRC
+
+***** 函数声明
+#+BEGIN_SRC C
+double sum(const struct funds *);
+#+END_SRC
+****** struct 结构模板(标记) * 
+
+
+***** 函数调用
+#+BEGIN_SRC C
+sun(&stan)
+#+END_SRC
+****** &变量名 ----把结构变量的地址传送过去
+**** 
+*** 14.7.3 传递结构
+-funds3.c
+**** 有的编译器不允许把「结构」作为「参数」,这个方法只允许用在适合的编译器上面
+****** 
+#+BEGIN_SRC C
+#include <stdio.h>
+#define FUNDLEN 50
+
+struct funds {
+    char bank[FUNDLEN];
+    float bankfund;
+    char save[FUNDLEN];
+    float savefund;
+};
+
+double sum(struct funds moolah);			//***
+
+int main(void)
+{
+    struct funds stan = {
+        "Garlic-Melon Bank",
+        4032.27,
+        "Lucky's Saving and Loan",
+        8543.94
+    };
+
+    printf("Stan has a total of $%.2f.\n", sum(stan));	//***
+
+    return 0;
+}
+
+double sum(struct funds moolah)
+{
+    return (moolah.bankfund + moolah.savefund);
+}
+#+END_SRC
+
+***** 函数声明
+#+BEGIN_SRC C
+double sum(const struct funds );
+#+END_SRC
+****** struct 结构模板(标记) 
+
+***** 函数调用
+#+BEGIN_SRC C
+sun(stan)
+#+END_SRC
+****** 结构名
+**** 实际上,调用sum()函数时,编译器会根据funds模板创建一个新的自动结构变量,把结构成员初始化为stan的值的副本
+**** 所以在sum()里面,moolah->bankfund是不允许的,只能用moolah.bankfund.
+**** 
+*** 14.7.4 其他结构特性
+**** 结构赋值
+-o_data.c
+-数组是不允许的,但是结构可以
+#+BEGIN_SRC C
+o_data = n_data;	//o_data跟n_data都是同一模板结构
+#+END_SRC
+
+***** 如果o_data跟n_data是结构数组就不行.但是可以
+#+BEGIN_SRC C
+n_data[1] = o_data[0];
+#+END_SRC
+
+**** 函数返回值是结构
+-names1.c (这是让指针作为参数传递给函数)
+-names2.c (返回结构)
+
+***** 因为结构可以赋值,所以可以 结构 = 函数返回的结构
+****** 
+#+BEGIN_SRC C
+// names2.c
+#include <stdio.h>
+#include <string.h>
+
+#define NLEN 30
+
+struct namect {
+    char fname[NLEN];
+    char lname[NLEN];
+    int letters;
+};
+
+struct namect getinfo(void);
+struct namect makeinfo(struct namect);
+void showinfo(struct namect);
+
+char * s_gets(char * st, int n);
+
+int main(void)
+{
+    struct namect person;
+
+    person = getinfo();
+    person = makeinfo(person);
+    showinfo(person);
+
+    return 0;
+}
+
+struct namect getinfo(void)
+{
+    struct namect temp;
+    printf("Please enter your first name.\n");
+    s_gets(temp.fname, NLEN);
+    printf("Please enter your last name.\n");
+    s_gets(temp.lname, NLEN);
+
+    return temp;
+}
+
+struct namect makeinfo(struct namect info)
+{
+    info.letters = strlen(info.fname) + strlen(info.lname);
+
+    return info;
+}
+void showinfo(struct namect info)
+{
+    printf("%s %s, your name contains %d letters.\n",
+           info.fname, info.lname, info.letters);
+}
+
+char * s_gets(char * st, int n)
+{
+    char * ret_val;
+    char * find;
+
+    ret_val = fgets(st, n, stdin);
+
+    if (ret_val)
+    {
+        find = strchr(st, '\n');
+        if (find)
+            * find = '\0';
+        else
+            while (getchar() != '\n')
+                continue;
+    }
+
+    return ret_val;
+}
+#+END_SRC
+***** 关键点
+-struct namect makeinfo(struct namect);
+-参数是结构, 返回也是结构, 在函数里面实际创建了一个新的结构(副本)
+-实际上, 在函数里面你怎么改那个结构, 主函数的结构的值也不会改变
+**** 
+*** 14.7.5 结构和结构指针的选择
+**** 注意
+***** 结构可以作为返回值, 指针作为返回值是返回地址
+**** 把指针作为参数
+***** 优点
+****** (1)执行快, 只需要传递一个地址
+****** (2)无论什么编译器都能用这种古老的方法
+***** 缺点
+****** 无法保护数据
+****** 但是只要用const就能解决这个问题
+#+BEGIN_SRC C
+double sum(const struct funds *);	//const
+...
+double sum(struct funds * money)
+{
+}
+#+END_SRC
+
+**** 把结构作为参数
+***** 优点
+****** (1)肯定能保护原始数据
+****** (2)代码风格更加清楚
+***** 缺点
+****** (1)老版本用不了结构作为参数的函数
+****** (2)浪费空间啊, 每次在函数里面都要创建副本, 大型结构特别浪费
+**** 
+*** 14.7.6 结构中的字符数组和字符指针
+**** 结构中有字符指针
+ex:
+#+BEGIN_SRC C
+struct pnames {
+    char * first;
+    char * last;
+};
+struct pnames attorney;
+scanf("%s", attorney.first);	//It has a warining!
+#+END_SRC
+***** 
+-结构中的字符指针只存储了地址, 比如pnames之存储16字节, 没有初始化的时候赋值, 里面的变量可能在内存任何地方.
+-一旦覆盖到了本身有重要数据的地方, 就斯巴达了.
+**** 
+*** 14.7.7 结构、指针和malloc()
+-为了在结构中使用指针
+**** 方法
+#+BEGIN_SRC C
+struct pnames {
+    char * first;
+    char * last;
+};
+...
+struct panmes attorney;
+char temp[SLEN];
+s_gets(temp, SLEN);
+attorney.first = (char *) malloc(strlen(temp) + 1);
+strcpy(attorney.first, temp);
+#+END_SRC
+
+***** 调用malloc()分配干净安全空间, 这样不就会覆盖重要数据
+***** 记得要用free清理数据
+**** 
+-names3.c
+***** ex:
+#+BEGIN_SRC C
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define SLEN 81
+
+struct namect {
+    char * fname;
+    char * lname;
+    int letters;
+};
+
+void getinfo(struct namect *);
+void makeinfo(struct namect *);
+void showinfo(struct namect *);
+void cleanup(struct namect *);
+char * s_gets(char * st, int n);
+
+int main(void)
+{
+    struct namect person;
+
+    getinfo(&person);
+    makeinfo(&person);
+    showinfo(&person);
+    cleanup(&person);
+
+    return 0;
+}
+
+void getinfo(struct namect * pst)
+{
+    char temp[SLEN];
+
+    printf("Please enter your first name.\n");
+    s_gets(temp, SLEN);
+    pst->fname = (char *) malloc(strlen(temp) + 1);
+    strcpy(pst->fname, temp);
+    printf("Please enter your last name.\n");
+    s_gets(temp, SLEN);
+    pst->lname = (char *) malloc(strlen(temp) + 1);
+    strcpy(pst->lname, temp);
+}
+
+void makeinfo(struct namect * pst)
+{
+    pst->letters = strlen(pst->fname) + strlen(pst->lname);
+}
+
+void showinfo(struct namect * pst)
+{
+    printf("%s %s, your name contains %d letters.\n",
+           pst->fname, pst->lname, pst->letters);
+}
+
+void cleanup(struct namect * pst)
+{
+    free(pst->fname);
+    free(pst->lname);
+}
+
+char * s_gets(char * st, int n)
+{
+    char * ret_val;
+    char * find;
+
+    ret_val = fgets(st, n, stdin);
+
+    if (ret_val)
+    {
+        find = strchr(st, '\n');
+        if (find)
+            * find = '\0';
+        else
+            while (getchar() != '\n')
+                continue;
+    }
+
+    return ret_val;
+}
+#+END_SRC
+***** 里面使用了结构指针指向有指针的结构
+***** 里面使用cleanup()在结尾释放空间
+**** 
+*** 14.7.8 复合字面量和结构(C99)
+-complit.c
+**** 复合字面量 "I see"
+**** 复合字面量可以作为初始化成员
+**** 复合字面量可以作为参数传递
+***** ex:
+-rect.c
+#+BEGIN_SRC C
+struct rect(double x; double y);
+double rect_area(struct rect r){return r.x * r.y;};	//函数原型
+
+int main()
+{
+     double area;
+     area = rect_area( (struct rect) {10.5, 20.0});
+...
+}
+#+END_SRC
+***** double rect_area(struct rect r){return r.x * r.y;}; 
+****** 函数定义,只是规格有点怪
+***** (struct rect) {10.5, 20.0}
+****** 这里就使用了复合字面量
+**** 
+*** 14.7.9 伸缩型数组成员(C99)
+-在结构里面有个伸缩性数组
+-flexmemb.c
+**** flexible array member
+***** 特性
+****** (1)数组不会立即存在
+****** (2)根据需要的数目创建数组
+****** (3)带伸缩性数组的数组称为struct hack, 会开始把伸缩型数组大小视为0
+***** ex:
+#+BEGIN_SRC C
+struct flex
+{
+    int count;
+    double average;
+    double scores[];	//*****
+};
+
+struct flex *pf;
+pf = malloc(sizeof(struct flex) + n * sizeof(double));
+#+END_SRC
+***** sizeof(struct flex)
+****** sizeof(int) + sizeof(double)
+***** 规则
+****** (1)伸缩型数组成员必须是结构的最后一个成员
+-因为预定位置的时候要把固定的元素建立起来
+****** (2)结构至少有一个成员
+****** (3)声明与普通数组一样,只是方括号是空
+**** size_t
+***** sizeof()和time()的返回类型
+***** P.478
+**** 结构指针不能想结构那样赋值
+***** *pf2 = *pf1;	//error
+**** 不能按传递数组的值的方法传递数组指针
+***** sum(pf1, pf2);	//error
+**** 不能嵌套带带伸缩型数组的结构
+***** 
+#+BEGIN_SRC C
+struct flex
+{
+    int count;
+    double average;
+    double scores[];	//*****
+};
+
+struct gee
+{
+    int a;
+    struct flex b;		//error
+};
+#+END_SRC
+**** 
+*** 14.7.10 匿名结构(C11)
+**** 匿名结构可以简化步骤
+****** ex:
+#+BEGIN_SRC C
+struct names
+{
+    char first[20];
+    char last[20];
+};
+
+struct person
+{
+    int id;
+    struct names name;
+};
+
+struct person ted = { 8483, {"Ted", "Grass"} };
+puts(ted.name.first);
+#+END_SRC
+
+==
+
+#+BEGIN_SRC C
+struct person
+{
+    int id;
+    struct {char first[20]; char last[20];};
+};
+
+struct person ted = { 8483, {"Ted", "Grass"} };
+puts(ted.first);
+#+END_SRC
+
+**** 
+*** 14.7.11 使用结构数组的函数
+-funds4.c
+**** 函数声明
+#+BEGIN_SRC C
+double sum(const struct funds money[], int n);
+#+END_SRC
+
+**** 函数调用
+#+BEGIN_SRC C
+sum(jones, N);
+#+END_SRC
+***** 使用了数组名作为数组中第一个地址传送
+
+**** 函数定义
+#+BEGIN_SRC C
+double sum(const struct funds money[], int n)
+{
+
+};
+#+END_SRC
+
+**** 为何要使用const
+***** 因为money是个结构数组,实际就是个数组,每个元素指向结构,所以调用的时候可以改掉他的原始数组
+**** 要点
+***** 可以把数组名作为数组里面第一个结构地址传送
+***** 可以访问数组中其他结构, 记得加&
+****** sum(&jones[2], N)
+***** 用const保护原始数据,毕竟传送的是地址
+**** 
+*** 
+** 14.8 把结构内容保存到文件中
+-boosave.c
+***** 结构的大小 * 数据块(1) * count = 已录入的元素的个数(= count) * 每个元素的个数
+**** fprintf()
+***** 一个个传进去,效率低
+**** fread()
+***** fread(结构数组中的元素的位置, 结构的大小, 数据块, 文件指针);
+***** 数据块是要写入多少这样的结构的大小的数量
+***** 每一次把文件中的流填充到数组中,然后递增到下一个数组
+***** fread()每遇到EOF应该返回1?
+**** fwrite()
+***** fwrite(要录入的结构数组第一个元素的地址, 结构的大小, 数据块, 文件指针);
+**** 步骤
+***** (1)创建一个文件指针,用fopen打开文件或者创建文件
+***** (2)用rewind()回到文件开头
+***** (3)用fread()将数据流传入结构数组中,计算已用大小
+***** (4)计算文件已用大小,跟总共能存储的大小,计算还能记录多少数据,以免溢出
+***** (5)将没超出的数据用fwrite()把结构数组的数据传入流中写入文件
+***** (6)fclose()
+**** filecount count
+***** filecount 赋值 为将fread纪录了多少个数据块(等于多少个数组存在文件中)
+***** count第一次递增读取结构数量,第二次用来记录总共多少个文件
+***** 然后减去已录入的结构数量(filecount),求出要保存的数据块
+**** 
+*** 
+** 14.9 链式结构
+-linked structure
+*** 第17章的内容
+**** 有点像linux文件分布
+**** 二叉树寻址
+*** 
+** 14.10 联合简介
+-union
+*** 14.10.1 使用联合
+-union.c
+****** ex:
+#+BEGIN_SRC C
+union hold {
+    int digit;
+    double bigf1;
+    char letter;
+};
+
+union hold fit;		//分配8 BYTES给fit
+
+fit.digit = 23;		//fit的数据存储为23(int),占用2 BYTES
+fit.bigf1 = 2.0;	//fit的23被清除,存储2.0, 占用8 BYTES
+fit.letter = 'h';	//fit的2.0被清除,存储'h',占用1 BYTES
+#+END_SRC
+
+**** 联合只能存储一个值
+***** 像在hold编译器会分配联合里面占用空间最大的一个成员的空间给这个联合存储数据
+***** hold分配8 bytes(double)来存储数据
+***** 初始化的时候,只能初始化一个值.
+**** 
+#+BEGIN_SRC C
+struct owner {
+    char socsecurity[12];
+...
+};
+
+struct leasecompany {
+    char name[40];
+    char headquarters[40];
+...
+};
+
+union data {
+    struct ownner, owncar;
+    struct leasecompany, leasecar;
+};
+
+struct car_data {
+    char make[15];
+  **int status;
+    union data owerinfo;
+...
+};
+#+END_SRC
+***** 如果flits是结构变量car_data的类型
+***** 如果status = 0, 程序使用flits.owerinfo.owcar.socsecurity
+***** 如果status = 1, 程序使用flits.owerinfo.leasecar.name
+**** 
+*** 14.10.2 匿名联合(C11)
+**** 
+#+BEGIN_SRC C
+struct owner {
+    char socsecurity[12];
+...
+};
+
+struct leasecompany {
+    char name[40];
+    char headquarters[40];
+...
+};
+
+struct car_data {
+    char make[15];
+  **int status;
+    union {			//匿名联合
+        struct ownner owncar;
+        struct leasecompany leasecar;
+    };
+...
+};
+#+END_SRC
+
+-struct_union.c
+***** 如果flits是结构变量car_data的类型
+***** 如果status = 0, 程序使用flits.owcar.socsecurity
+***** 如果status = 1, 程序使用flits.leasecar.name
+**** 
+*** 总结
+**** . 和 ->
+ex:
+#+BEGIN_SRC C
+struct {
+    int code;
+    float cost;
+} item1;
+item1.code = 1265;
+
+
+struct {
+    int code;
+    float cost;
+} item2, * ptrst;
+ptrst = &item2;
+ptrst->code = 3451;
+// (*ptrst).code = 3451;	也可以
+#+END_SRC
+***** '.'用在结构变量上,'->'用在结构指针上
+**** 
+*** 
+** 14.11 枚举类型
+**** enumerated type
+***** 声明"符号名称"来表示整型常量
+***** enum关键字, 实际是int类型, 只是给了个名称
+***** 目的是增加可读性
+***** enum 标记名 { 枚举符, 枚举符, 枚举符 ... };
+#+BEGIN_SRC C
+enum spectrum { red, orange, yellow, green, blue, violet };
+enum spectrum color;
+/*
+red    = 0
+orange = 1
+yellow = 2
+green  = 3
+blue   = 4
+violet = 5
+*/
+#+END_SRC
+
+*** 14.11.1 enum常量
+
+**** 如果已经声明了枚举可以用printf("")来打印他们的值
+
+#+BEGIN_SRC C
+printf("red = %d, orange = %d\n", red, orange);
+#+END_SRC
+
+***** 枚举符实际就是有名称的"常量",代表着某个整数.
+
+**** 枚举 是 switch()神器
+
+**** 
+
+*** 14.11.2 默认值
+
+**** 默认从 0开始, 0,1,2,3...这样赋值
+
+**** 
+
+*** 14.11.3 赋值
+ex:
+#+BEGIN_SRC C
+enum kids { low = 100, medium = 500, high = 2000 };
+enum feline { cat, lynx = 10, puma, tiger };
+#+END_SRC
+
+***** puma = 11 , tiger = 12
+
+*** 14.11.4 enum的用法
+-enum.c
+
+**** 有意思的地方
+#+BEGIN_SRC C
+if (strcmp(choice, colors[color]) ==  0)
+#+END_SRC
+
+***** colors[color]这里是字符串, 他们的值是red, yellow...
+***** 而red, yellow里面的值是int
+**** 
+*** 14.11.5 共享名称空间
+**** 名称空间(namespace)
+#+BEGIN_SRC C
+struct rect { double x; double y };
+int rect;
+#+END_SRC
+
+***** 结构的标识的名称, 跟变量的名称的空间是不用的,所以不会引起冲突, 但是不建议也不允许!
+**** 
+*** 
+
+** 14.12 typedef
+
+**** 跟#define有点类似
+
+**** 不同点
+
+***** (1) typedef创建的符号名只能用于类型, 不能用于值
+#+BEGIN_SRC C
+typedef unsigned char BYTE;
+BYTE x, y[10], *z;
+
+typedef BEQ 10;		//X Error
+#+END_SRC
+
+***** (2) typedef由编译器解释, #define是预处理
+
+***** (3) typedef在受限制范围内比#define更加灵活
+
+***** 
+#+BEGIN_SRC C
+#define BYTE unsigned char
+=
+typedef unsigned char BYTE; 
+#+END_SRC
+
+但是
+
+#+BEGIN_SRC C
+typedef char * STRING;
+STRING name, sign;
+这里name sign都是指针
+
+#define STRING char *
+STRING name, sign;	//Error
+这里name是指针, sign不是
+#+END_SRC
+
+***** typedef用于结构
+#+BEGIN_SRC C
+typedef struct complex {
+    float real;
+    float imag;
+} COMPLEX;
+#+END_SRC
+
+#+BEGIN_SRC C
+typedef struct {double x, double y;} rect;
+rect r1 = { 3.0, 6.0 };
+rect r2;
+r2 = r1;
+#+END_SRC
+
+**** 目的
+
+***** (1) 为经常出现的类型创建一个易识别, 方便的名字
+
+***** (2) 用于复杂的类型民营
+
+**** 注意
+
+***** typedef并没有创建一个新的类型,他只是个标签
+
+*** 
+
+** 14.13 其他复杂的声明
+
+**** 
+#+BEGIN_SRC C
+int board[8][8];	//one array
+int ** ptr;		//one pointer point to one pointer what is point to a int
+int * risks[10];	//one pointer point to an array
+int (*rusks)[10];	//ten pointers
+int * oof[3][4];	//one pointer point to an array 3X4
+int (* uuf)[3][4];	//twelve pointers
+int (* uof[3])[4];	//three pointers point to an array 1X4
+#+END_SRC
+
+**** 规则
+
+***** (1) 数组名后面的[]和函数名后面的()具有相同的优先级。他们比*优先级要高。
+
+***** (2) []和()的优先级相同， 从左往右结合。
+
+***** (3) []和()都是从左往右结合。
+
+**** 要点
+- int (* uuf)[3][4];
+- uuf是一个指针指向12个元素的数组。
+
+**** 指针函数
+#+BEGIN_SRC C
+char * fump(int);		//返回指针的函数声明
+char (* frump)(int);		//创建一个指向 “参数是int，返回char * 的函数” 的指针
+char (* flump[3])(int);		//创建三个指向 “参数是int，返回char * 的函数” 的指针
+#+END_SRC
+
+***** 这三个函数的参数都是int类型
+
+**** typedef 建立类型
+
+***** 之后补充，太他妈奇妙了
+#+BEGIN_SRC C
+typedef int arr5[5];
+typedef arr5 * p_arr5;
+typedef p_arr5 arrp10[10];
+arr5 togs;
+p_arr5 p2;
+arrp10 ap;
+#+END_SRC
+
+**** 
+
+*** 
+
+** 14.14 函数和指针
+
+**** 上一节的 char (* frump)(int); 学习到可以声明指向函数的指针。
+
+**** 什么是函数指针
+
+***** 函数也有地址
+- 函数的机械语言实现由载入的内存代码组成
+- 指向函数的指针中存储函数代码的起始处的地址
+
+***** 函数签名
+****** 声明数据指针，要声明数据的类型
+****** 函数指针的函数类型
+- 指明函数类型， 要指明函数签名，
+****** 函数签名
+******* 函数返回类型
+******* 函数型参类型
+****** ex：
+#+BEGIN_SRC C
+void ToUpper(char *);	//这是函数声明
+
+void (* pf)(char *);	//这是函数指针声明
+
+void * pf (char *);	//pf是返回字符指针的函数， 空子符？
+#+END_SRC
+******* 括号很重要，根据声明的优先级， *优先级比()[]要低，所以只要声明指针都要将名字跟'*'括起来
+***** 
+**** 函数名是该函数的地址
+- 跟数组有点像
+#+BEGIN_SRC C
+void ToUpper(char *);
+
+void (* pf)(char *);
+
+pf = ToUpper;		//right
+pf = ToUpper();		//Error
+
+int rang(double);
+
+pf = rang;		//Error, 不要把函数指针指向跟指针类型不匹配的函数
+#+END_SRC
+
+**** 使用函数指针的来调用函数
+***** 参考Ch14文件中的"about_funtion_pointer.org"
+***** 参考ch14文件中的lesson/pointerfunction.c
+***** ex:
+#+BEGIN_SRC C
+void ToUpper(char *);
+void (*pf)(char *);
+char mis[] = "Nina Metier";
+pf = ToUpper;
+(*pf)(mis);
+pf(mis);
+#+END_SRC
+****** 函数名是指针
+- 函数名是函数的入口的指针
+- 所以，指针和函数名可以互换使用
+- pf是指针， pf = ToUpper， 所以pf(mis) == ToUpper(mis)
+**** 声明参数是函数指针的函数
+#+BEGIN_SRC C
+void show(void (*pf)(char *), char * str);
+...
+pf = ToUpper;
+show((*pf), mis);
+
+void show(void (*pf)(char *), char * str)
+{
+    (*pf)(str);
+    puts(str);
+}
+#+END_SRC
+
+**** 参考ch14文件中的lesson/func_ptr.c
+-func_ptr.c
+
+***** 使用typedef声明函数指针
+
+****** typedef char * DATA;
+
+****** typedef void (*V_FP_CHARP)(char *);
+#+BEGIN_SRC C
+typedef void (*V_FP_CHARP)(char *);
+void show(V_FP_CHARP fp, char *);
+V_FP_CHARP pfun;
+#+END_SRC
+
+**** typedef规则
+***** typedef只是标签，把符号名创建的变量代替符号名， 去掉typedef就是他的真正声明；
+- 标签就是声明的时候， 把变量名带入进去
+#+BEGIN_SRC C
+typedef void (*V_FP_CHARP)(char *);
+V_FP_CHARP pfun;
+==
+        void (*pfun      )(char *);
+
+typedef int arr5[5];
+arr5 togs;
+==
+        int togs[5];
+#+END_SRC
+
+
+***** 
+
+**** 函数数组
+
+#+BEGIN_SRC C
+void (*arpf[4])(char *) = { ToUpper, ToLower, Transpose, Dummy };
+(*arpf[1])(mis);
+#+END_SRC
+
+***** 
+**** typedef函数数组
+
+#+BEGIN_SRC C
+typedef void (* V_FP_CHARP)(char *);
+V_FP_CHARP arpf[4] = { ToUpper, ToLower, Transpose, Dunmmy };
+arpf[1](mis);
+#+END_SRC
+
+**** strcpy(copy, line);
+- 保护原数据的备份方法
+
+**** ans = tolower(getchar());
+#+BEGIN_SRC C
+ans = getchar();
+ans = tolower(ans);
+
+==
+
+ans = tolower(getchar());
+#+END_SRC
+
+**** 学会使用eatline()
+#+BEGIN_SRC C
+void eatline()
+{
+    while (getchar() != '\n')
+        continue;
+}
+#+END_SRC
+
+**** 学会使用函数数组来调用函数
+#+BEGIN_SRC C
+typedef void (* V_FP_CHARP)(char *);
+V_FP_CHARP arpf[4] = { ToUpper, ToLower, Transpose, Dunmmy };
+
+char showmenu(void)
+{
+    char ans;
+    
+    puts("Enter the menu choice");
+    puts("u) uppercase		l) lowercase");
+    puts("t) transposed case	o) original case");
+    puts("n) next string");
+    ans = getchar();
+    ans = tolower(ans);
+    eatline();
+    while (strchr("ulton", ans) == NULL)
+    {
+        puts("Please enter a u, l, t, o, or n:");
+        ans = tolower(getchar());
+        eatline();
+    }
+
+    return ans;
+}
+
+int index;
+
+index = showmenu();
+while (index >= 0 && index <= 3)
+{
+    strcpy(copy, line);
+    show(arpf[index], copy);
+    index = showmenu;
+}
+#+END_SRC
+
+**** while (strchr("ulton", ans) == NULL)
+#+BEGIN_SRC C
+while (strchr("ulton", ans) == NULL)
+==
+while (ans != 'u' && ans != 'l' && ans != 't' && ans != 't' && ans != 'o' && ans != 'n')
+#+END_SRC
+
+***
