@@ -25,3 +25,9 @@ int main(void)
 }
 
 #+END_SRC
+
+(*pf_a)();
+pf_a();
+pf_b(a);
+(*pf_b)(a);
+
