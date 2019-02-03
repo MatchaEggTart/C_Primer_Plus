@@ -1,0 +1,6 @@
+for (a; b; c)
+{
+	d;
+}
+
+a > b > c > d > c > b > d > c > b > d....
