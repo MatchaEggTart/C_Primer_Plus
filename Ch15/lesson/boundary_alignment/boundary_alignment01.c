@@ -20,9 +20,18 @@ int main(void)
         unsigned int field2 : 1;
         unsigned int        : 0;
         unsigned int field3 : 1;
-    } stuff;
+    } stuff1;
     
-    printf("sizeof stuff is %zd\n", sizeof(stuff));
+    printf("sizeof stuff is %zd\n", sizeof(stuff1));
+
+    struct {
+        unsigned int field1 : 1;
+        unsigned int        : 2;
+        unsigned int field2 : 1;
+        unsigned int field3 : 1;
+    } stuff2;
+
+    printf("sizeof stuff is %zd\n", sizeof(stuff2));
 
     printf("sizeof int is %zd\n", sizeof(int));
 
