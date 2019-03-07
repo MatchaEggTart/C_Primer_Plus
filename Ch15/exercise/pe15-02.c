@@ -9,7 +9,7 @@ bool check_bin(char const *);
 
 int main(int argc, char const * argv[])
 {
-    int answer;
+    int argument_1, argument_2;
 
     char bin_str[CHAR_BIT * sizeof(int) + 1];
 
@@ -25,9 +25,18 @@ int main(int argc, char const * argv[])
         exit(2);
     }
 
-    answer = btois(argv[1]) + btois(argv[2]);
+    argument_1 = btois(argv[1]);
+    argument_2 = btois(argv[2]);
 
-    printf(" %32s\n+%32s\n=%s\n", argv[1], argv[2], itobs(answer, bin_str));
+    printf("   %32s\n&   %31s\n", argv[1], argv[2]);
+    printf("   %s\n\n", itobs((argument_1 & argument_2), bin_str));
+    printf("   %32s\n|   %31s\n", argv[1], argv[2]);
+    printf("   %s\n\n", itobs((argument_1 | argument_2), bin_str));
+    printf("   %32s\n^   %31s\n", argv[1], argv[2]);
+    printf("   %s\n\n", itobs((argument_1 ^ argument_2), bin_str));
+    printf("\n\n");
+    printf("   %32s\n~= %s\n", argv[1], itobs(~argument_1, bin_str));
+    printf("   %32s\n~= %s\n", argv[2], itobs(~argument_2, bin_str));
 
     return 0;
 }
