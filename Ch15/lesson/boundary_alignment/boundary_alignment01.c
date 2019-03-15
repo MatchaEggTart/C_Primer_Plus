@@ -5,7 +5,7 @@ int main(void)
     struct {
         unsigned int code1 : 2;
         unsigned int code2 : 2;
-        unsigned int code3 : 8;
+        unsigned int code3 : 32;
     } prcode;
 
     prcode.code1 = 0;

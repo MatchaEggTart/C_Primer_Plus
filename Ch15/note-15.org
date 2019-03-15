@@ -45,6 +45,8 @@
 - 有符号整数
 - 如何表示有符号整数取决与硬件
 - 一般都是高阶位表示符号
+- ones_complement.c 可以用来检查硬件的储存有符号整数的方式
+
 **** 三种储存方式有符号整数
 ***** (1)sign-magnitude
 - 符号量表示法
@@ -84,12 +86,697 @@ so      10000101 = -123
 ***** 留出若干位(因系统而异)储存二进制分数，其他位储存指数
 **** P.495 有兴趣自己去看
 *** 
+
 ** 15.2
 - 其他进制数
 - 8 和 16 都是2 的冥， 用他们计数比10进制更接近计算机的二进制，所以计算机界面通常用八进制跟十六进制记数系统。
 *** 15.2.1 八进制
+- octal
+
+**** 优点:因为是2的冥，比10进制更接近计算机的2进制系统。
+
+**** 缺点:每个八进制对应3个二进制位(ex: (7)8 = (111)2)。一个3位的八进制数可能要用9位二进制数来表示。
+
+**** 
+
+*** 15.2.2 十六进制
+- hex 、 hexadecimal
+
+**** 优点:每个16进制位对应1个4位的二进制数，两个16进制恰好一个8位字节
+
+**** 
+
+*** C有两个工具操控位
+
+**** (1)一套作用于位的按位运算符(6个)
+
+**** (2)字段(field)数据形式，用于访问int中的位
+
+*** 
+
+** 15.3 C按位运算符
+
+*** 15.3.1 按位逻辑运算符
+
+***** 4个按位逻辑运算符都用于int or char(整数数据), bitwise(按位),就是针对每一个位进行操作, 不影响其他的位
+**** 1. 二进制反码或按位取反: ~
+- ex: ones_complement.c
+- 可以用来检查硬件的储存有符号整数的方式
+
+***** ex:
+#+BEGIN_SRC C
+int a = 2;
+printf("~%d = %d\n", a, ~a);
+#+END_SRC
+
+***** 按位赋值运算符
+- ( ~= )
+
+#+BEGIN_SRC C
+a ~= a;
+#+END_SRC
+
+**** 2. 按位与: &
+
+- ex: bitwise_and.c
+
+***** ex:
+
+#+BEGIN_SRC C
+int a = 12;
+int b = 32;
+
+printf("%d & %d = %d\n", a, b, a & b);
+#+END_SRC
+
+***** 按位赋值运算符
+- ( &= )
+
+#+BEGIN_SRC C
+a &= 0377;
+#+END_SRC
+
+**** 3. 按位或: |
+
+- ex: bitwise_or.c
+
+***** ex:
+
+#+BEGIN_SRC C
+int a = 12;
+int b = 32;
+
+printf("%d | %d = %d\n", a, b, a | b);
+#+END_SRC
+
+***** 按位赋值运算符
+- ( |= )
+
+#+BEGIN_SRC C
+a |= 0377;
+#+END_SRC
+
+**** 4. 按位异或: 
+
+- ex: bitwise_xor.c
+
+***** ex:
+
+#+BEGIN_SRC C
+int a = 12;
+int b = 32;
+
+printf("%d ^ %d = %d\n", a, b, a ^ b);
+#+END_SRC
+
+***** 按位赋值运算符
+- ( ^= )
+
+#+BEGIN_SRC C
+a ^= 0377;
+#+END_SRC
+
+**** 
+
+*** 15.3.2 用法: 掩码
+- mask
+- mask.c
+- 我的理解: 就是把一个值(ex: MASK)所有0的位置无视掉,用一个值(ex:flags)使用&与MASK使用, 就可以把flags里面与MASK为0的位对应的位无视掉.
+-          因为 任何值 & 0 = 0. 这个过程叫做"使用掩码". 因为掩码的0 隐藏了flags中相应的位.
+
+**** 使用工具: &
+
+***** 任何数 & 0 = 0
+
+***** 任何数 & 1 = 任何数本身
+
+**** ex:
+#+BEGIN_SRC C
+  MASK    00000010
+& flag	  10010110
+=
+  MASK    00000010
+& flag    xxxxxx1x
+=	  00000010
+#+END_SRC
+
+**** 掩码的"宽度"
+
+ex:
+#+BEGIN_SRC C
+int ch = 1;	// int 是4字节一般来说,等于32位
+ch &= 0xff;	// 0xff = 11111111
+
+#+END_SRC
+
+***** 无论ch原来是8位、16位或者更多位,最终的值都被修改为一个8位字节,其他位被视为0,这个掩码的宽度是 "8位".
+
+**** 
+
+*** 15.3.3 用法: 打开位
+- bitwise_open.c
+
+**** 用法: 例如一台IBM PC 通过向端口发送值来控制硬件.,比如打开内置扬声器,必须打开7号位, | 0x40
+
+**** 使用工具： |
+
+***** 任何数 | 0 = 任何数本身
+
+***** 任何数 | 1 = 1
+
+**** 
+
+*** 15.3.4 用法: 关闭位(清空位)
+- bitwise_close.c
+
+**** 用法: 例如要关闭扬声器,必须7号位为0 & (~0x40)
+
+**** 使用工具: & ~
+
+***** ~ 把0变成1 把1变成0
+
+***** & 功能看上面
+
+**** 
+
+*** 15.3.5 用法:切换位
+- bitwise_switch.c
+
+**** 让部分位置取反, ~ 只能所有字节取反.
+
+**** 使用工具: ^
+
+**** ex: 让3、7位取反 01000100 = 0x44
+
+#+BEGIN_SRC C
+int a = 2;	// 00001110
+a ^= 0x44;	// 01000100
+		// 01001010
+#+END_SRC
+
+***** 与1对应的位全部切换、其他不变
+
+**** 
+
+*** 15.3.6 用法:检查位的值
+- bitwise_check.c
+- 设置好MASK的位，哪些是1
+
+**** 用法: 检查位是否打开
+**** 错误用法
+
+#+BEGIN_SRC C
+if (flags == MASK)
+    puts("Wow!");
+#+END_SRC
+
+**** 正确用法
+
+#+BEGIN_SRC C
+if (MASK == (flags & MASK))
+    puts("Wow!");
+#+END_SRC
+
+**** 
+
+*** 15.3.7 移位运算符
+
+**** 1. 左移: <<
+
+***** 定义: 左移运算符将其左侧运算对象每一位的值向左移动其右侧运算对象指定的位数。
+
+***** 注意: 左侧运算对象移出左末端位的值丢失，用"0"填充空出的位置。并且不会改变其运算对象，会产生一个新的位值，除非用左移赋值运算符
+ex:
+#+BEGIN_SRC C
+(10001010) << 2
+(00101000)
+#+END_SRC
+
+***** 左移赋值运算符(<<=)
+
+#+BEGIN_SRC C
+int sweet = 16;
+int ooosw;
+
+ooosw = sweet << 3;	//sweet still = 16
+#+END_SRC
+
+**** 2. 右移: >>
+
+***** 定义: 右移运算符将其左侧运算对象每一位的值向右移动其右侧运算对象指定的位数。
+
+***** 注意:
+
+***** 1.对于无符号类型，用0填充空出的位置
+
+***** 2.对于有符号类型，其结果取决于及其，可能是0可能是最左端的位填充
+
+ex:
+#+BEGIN_SRC C
+(10001010) >> 2 // signed
+(11100010)	// some pc's answer
+or
+(10001010) >> 2 // signed
+(00100010)	// some pc's answer
+
+(10001010) >> 2 // unsigned
+(00100010)
+#+END_SRC
+
+***** 右移赋值运算符(>>=)
+
+#+BEGIN_SRC C
+int sweet = 16;
+int ooosw;
+
+ooosw = sweet >> 3;	//sweet still = 16
+#+END_SRC
+
+***** 
+
+**** 3. 用法:移位运算符
+
+#+BEGIN_SRC C
+number << n
+number >> n
+#+END_SRC
+
+***** 移位运算符类似于十进制中移动小数点来乘以或除以10。
+
+***** 
+
+*** 15.3.8 编程示例
+- binbit.c
+
+**** 有趣的地方
+#+BEGIN_SRC C
+#include <limits.h>	//提供了CHAR_BIT 的定义， CHAR_BIT 表示每字节的位数(CHAR一般都是1byte，1byte 有多少 bits)
+#+END_SRC
+
+**** 
+#+BEGIN_SRC C
+char bin_str[CHAR_BIT * sizeof(int)] + 1;
+#+END_SRC
+
+***** 为什么CHAR_BIT * sizeof(int)
+
+****** 因为CHAR 为 1 byte， * sizeof(int) 可以知道int用了多少 bits
+
+****** 一般int是4bytes， 估计使用32位
+
+***** 为什么+1
+
+****** 因为要留一个位置放'\0'
+
+***** 总共是33位的字符串，索引(下标数)编号因为是从多少到多少，'\0'的编号是多少
+
+****** 因为是33个项数，33个元素，编号从0开始，到32，总共33个，'\0'在编号32的位置，就是bin_str[32] == '\0'?
+
+***** 
+
+**** 函数 itobs
+#+BEGIN_SRC C
+char * itobs(int n, char * ps)
+{
+    int i;
+    const static int size = CHAR_BIT * sizeof(int);
+    
+    for (i = size - 1; i >= 0; i--, n >>= 1)		// *****
+	ps[i] = (01 & n) + '0';
+    ps[size] = '\0';
+
+    return ps;
+}
+#+END_SRC
+
+**** 计算数组中编号的最大值
+#+BEGIN_SRC C
+    const static int size = CHAR_BIT * sizeof(int);
+#+END_SRC
+
+***** 为什么没有+1
+
+****** 因为这是算出数组的编号最大值，33个元素，编号从0-32，所以这里算出32
+
+**** 如何把整型数据的每一个值从右往左放进字符串
+#+BEGIN_SRC C
+	ps[i] = (01 & n) + '0';
+#+END_SRC
+
+***** 在n每一次移位的时候，跟000000000....0001比较最后一位是不是1，比较的结果是0或者1的数值，不能直接放在字符串，所以+'0'，就可以知道是'1'还是'0'
+
+**** 
+
+**** 函数 show_bstr()
+#+BEGIN_SRC C
+void show_bstr(const char * str)
+{
+    int i = 0;
+
+    while (str[i])
+    {
+	putchar(str[i]);
+	if (++i % 4 == 0 && str[i])
+	    putchar(' ');
+    }
+}
+#+END_SRC
+
+**** 每四个字符串打印空格
+#+BEGIN_SRC C
+	if (++i % 4 == 0 && str[i])
+#+END_SRC
+
+***** 首先当编号到3的时候是先打印空格还是字符串，这是个问题
+
+***** 0、1、2、3 是先打印数组内容、然后打赢空格所以才有这段
+
+***** str[i] 当编号到32的时候，32 % 4 == 0，在结束程序的时候还要打印一个空格，没必要
+
+**** 
+
+*** 15.13.9 另一个例子
+
+- invert4.c
+
+**** 函数invert_end
+#+BEGIN_SRC C
+int invert_end(int num, int bits)
+{
+    int mask = 0;
+    int bitval = 1;
+
+    while (bits-- > 0)
+    {
+	mask |= bitval;
+	bitval <<= 1;
+    }
+
+    return (num ^ mask);
+}
+#+END_SRC
+
+***** 制造一个掩码mask，用bits递减把指定末尾多少位转换成1，用bitval完成打开位的功能
+
+***** 最后用切换位功能来切换传递的数据num指定的末尾位数
+
+*** 
+
+** 15.4
+
+- 位字段
+- bit field
+- 第二种操控位的方法， 位字段是一个signed int、 unsigned int、 bool类型变量中的『一组』相邻的位，
+**** 通过一个『结构声明』来建立的， 结构声明为每个字段提供『标签』，还有『宽度』
+ex:
+#+BEGIN_SRC C
+struct {
+    unsigned int autfd : 1;
+    unsigned int bldfc : 1;
+    unsigned int undln : 1;
+    unsigned int itals : 1;
+} prnt;
+
+...
+    prnt.autfd = 0;
+#+END_SRC
+
+***** 这是一个匿名结构prnt，包含4个1位的字段，可以通过(.)单独给字段赋值
+
+***** 可不可以
+#+BEGIN_SRC C
+    prnt.autfd = 2;
+#+END_SRC
+
+****** 不可以，因为autfd声明的时候占用1bit，只能储存0或1
+
+***** prnt的大小
+
+****** prnt被存放在int 大小的内存单元中，但是只使用了其中4位，因为是末尾的4位?
+
+**** 结构的大小
+
+- bit_field.c
+- boundary_alignment/boundary_alignment01.c
 
 
+***** 例子1
+#+BEGIN_SRC C
+    struct {
+        unsigned int code1 : 2;
+        unsigned int code2 : 2;
+        unsigned int code3 : 8;
+    } prcode;
+#+END_SRC
+
+****** 这是个占了12个位的结构， 但是prcode实际占用了1个int大小(32)的内存单元
+
+***** 声明的总位数超过了一个unsigned ind
+****** 例子2
+#+BEGIN_SRC C
+    struct {
+        unsigned int code1 : 2;
+        unsigned int code2 : 2;
+        unsigned int code3 : 32;
+    } prcode;
+#+END_SRC
+
+****** 这是个占了36个位的结构，会用到下一个unsigned int类型的存储位置，一个字段不允许跨越两个unsigned int之间的边界
+
+****** 编译器会自动移动跨界的字段，保持unsigned int的『边界对齐』。————P.506 && /boundary_alignment/boundary_alignment.org
+
+***** unsigned int    : 0;
+#+BEGIN_SRC C
+struct {
+        unsigned int field1 : 1;
+        unsigned int        : 2;
+        unsigned int field2 : 1;
+        unsigned int        : 0;
+        unsigned int field3 : 1;
+    } stuff1;
+#+END_SRC
+
+****** 这个结构占用了多少位
+
+****** 实际上占用了2个int，因为unsigned int    : 0;等于迫使下一个字段与下一个整数对齐
+- 用未命名的字段宽度“填充”未命名的“洞”。使用一个宽度为0的未命名字段迫使下一个字段与下一个整数对齐。————————P.506
+- 我的理解是，"unsigned int    : 0"让下一个字段不再使用当前unsigned int，哪怕他位置还有剩余，强行对齐
 
 
+***** 
 
+**** 15.4.1 位字段示例
+
+-fields.c
+
+***** box_props的声明
+#+BEGIN_SRC C
+struct box_props
+{
+    bool opaque : 1;
+    unsigned int fill_color : 3;
+    unsigned int : 4;
+    bool show_border : 1;
+    unsigned int border_color : 3;
+    unsigned int border_style : 2;
+    unsigned int : 2;
+};
+#+END_SRC
+
+***** box_props占用了多少位
+
+****** 占用了1个int大小，16位用来放数据
+
+
+***** 有趣的地方
+#+BEGIN_SRC C
+#define BLUE        4
+#define GREEN       2
+#define RED         1
+
+#define BLACK       0				
+#define YELLOW      (RED | GREEN)		// 1 | 2 = 3
+#define MAGENTA     (RED | BLUE)		// 1 | 4 = 5
+#define CYAN        (GREEN | BLUE)		// 2 | 4 = 6
+#define WHITE       (RED | GREEN | BLUE)	// 1 | 2 | 4 = 7
+const char * colors[8] = { "black", "red", "green", "yellow",
+"blue", "magenta", "cyan", "white" };
+#+END_SRC
+
+****** colors 8个索引对应一个表示颜色的字符串，索引值作为颜色的数值，可以尝试用enum枚举————————P.474-476
+
+***** 
+
+**** 15.4.2 位字段和按位运算符
+
+***** 位字段 和 按位运算符 的关系
+
+****** 『位字段』和『按位运算符』是两种『可替换』的方法
+ex： - bitwise_to_bitfield.c
+
+#+BEGIN_SRC C
+box.border_color |= RED;
+#+END_SRC
+
+- 但是 box |= RED; 不行， 因为box这里声明是struct
+
+***** 位字段是用和unsigned int 类型大小相同的结构储存信息
+
+***** 按位运算符用unsigned int 变量储存相同信息。
+
+***** 按位运算符来操作位的赋值比较『麻烦』。
+
+***** 对比两种方式的程序
+
+- dualview.c
+
+***** 并不鼓励这样做，同时用两种方法，只是解释区别
+
+***** 使用了联合 union
+
+#+BEGIN_SRC C
+union Views {
+    struct box_props st_view;
+    unsigned short us_view;
+};
+#+END_SRC
+
+****** union 在书P.472，混合类型，按最大的字段来分配空间，只能存储一个值(double 跟 char例外)。
+
+****** 有些系统, unsigned int 和 box_props 类型的结构都占用16位内存， 大部分系统， unsigned int 和 box_props 都是 32位。
+
+****** 无论什么情况， 通过联合，编译器使用st_view 成员把一块内存看作一个结构
+
+****** 或者使用us_view 成员把一块内存看作一个unsigned short。
+
+****** 在内存中其实都是一样的数据，只是采用不用方式去访问。
+
+****** 采用us_view 按位运算符的方法修改数据， 基本上都要用掩码把数据清空位(&)，然后在用(|)赋值。
+
+*** 
+
+** 15.5 对齐特性(C11)
+
+**** 首先搞清楚 &的地址之间 比如a0 与 a8之间是多少?位还是字节
+
+***** 是字节 8 字节。 P.289，
+
+**** C11自带的对齐特性比用位填充字节更自然
+
+**** 更效率化
+
+***** 为了效率最大化，系统可能把一个double(8 bytes)存储在4字节内存上，但允许把char存储在任意地质
+
+-ex: alignas.c
+
+#+BEGIN_SRC C
+    double x0;				//d8
+    char _Alignas(double) x1;		//d0
+    char x2;				//cf
+    double x3;				//c0
+    char x4;				//bf
+    char _Alignas(double) x5;		//b8
+    char x6;				//b7
+    double x7;				//a8
+
+    printf("&x0: %p\n", &x0);
+    printf("&x1: %p\n", &x1);
+    printf("&x2: %p\n", &x2);
+    printf("&x3: %p\n", &x3);
+    printf("&x4: %p\n", &x4);
+    printf("&x5: %p\n", &x5);
+    printf("&x6: %p\n", &x6);
+    printf("&x7: %p\n", &x7);
+
+    printf("x5 = %zd\n", sizeof(x5));
+    printf("x7 = %zd\n", sizeof(x7));
+#+END_SRC
+
+- 输出结果
+#+BEGIN_SRC C
+    x0: 0x7ffe54700bd8
+    x1: 0x7ffe54700bd0
+    x2: 0x7ffe54700bcf
+    x3: 0x7ffe54700bc0
+    x4: 0x7ffe54700bbf
+    x5: 0x7ffe54700bb8
+    x6: 0x7ffe54700bb7
+    x7: 0x7ffe54700bb6
+    x8: 0x7ffe54700ba8
+
+    x5 = 1
+    x8 = 8
+#+END_SRC
+
+- 图示
+[x]  [x]  [x]  [x]  [x]  [x]  [x]  [x]  	double
+a8   a9   aa   ab   ac   ad   ae   af  		x8 -> a8 - af
+
+[ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [x]  [x]		char			char
+b0   b1   b2   b3   b4   b5   b6   b7  		x7 -> b7   		x6 -> b6
+
+[x]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [x]		char _ALignas(double)	char
+b8   b9   ba   bb   bc   bd   be   bf  		x5 -> b8		x4 -> bf
+
+[x]  [x]  [x]  [x]  [x]  [x]  [x]  [x]		double
+c0   c1   c2   c3   c4   c5   c6   c7		x3 -> c0 - c7
+  
+[ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [x]		char
+c8   c9   ca   cb   cc   cd   ce   cf 		x2 -> cf
+
+[x]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]		char _ALignas(double)
+d0   d1   d2   d3   d4   d5   d6   d7 		x1 -> d0
+
+[x]  [x]  [x]  [x]  [x]  [x]  [x]  [x] 		double
+d8   d9   da   db   dc   dd   de   df  		x0 -> d8 - df
+
+
+- 实际上每个double都用了8个位
+
+
+- _Alignas(double) 占了1个位，对齐？ (在我们的系统中， double的对齐值是8)
+- x5 是放在 b8
+- x1 是放在 d0
+
+- char对齐值是1，所以可以使用任何位置。
+- 这个系统明显是把char放在对齐的而没使用8个字节末尾。
+
+**** 请参考， 上面都是错的
+https://www.cnblogs.com/VIPler/p/4282584.html
+
+
+** 习题部分
+
+*** pe15-06.c
+
+ex:
+#+BEGIN_SRC C
+void change_size(struct config_font * font)
+{
+    unsigned int size;
+    printf("Enter font size (0-127): ");
+    while (scanf("%u", &size) != 1 || (size < 0 || size > 127))
+    {
+        eatline();
+        puts("Please enter (0-127)");
+    }
+    eatline();
+    font->font_size = size;
+}
+#+END_SRC
+
+我曾经写:
+#+BEGIN_SRC C
+void change_size(struct config_font * font)
+{
+    printf("Enter font size (0-127): ");
+    while (scanf("%u", font->font_size) != 1 || (size < 0 || size > 127))
+    {
+        eatline();
+        puts("Please enter (0-127)");
+    }
+    eatline();
+}
+#+END_SRC
+
+**** scanf("%u", font->font_size) 为什么不行，scanf无法为结构指针的值赋值吗？这是个有意思的问题

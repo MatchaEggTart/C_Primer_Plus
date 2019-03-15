@@ -28,24 +28,30 @@ int main(void)
     printf("&c2: %p\n", &c2);
     printf("&c3: %p\n", &c3);
 
-    printf("Important\n\n");
-    double d0;
-    char _Alignas(double) d1;
-    char d2;
-    double d3;
-    char d4;
-    char _Alignas(double) d5;
-    char d6;
-    double d7;
+    printf("\nImportant\n\n");
 
-    printf("&d0: %p\n", &d0);
-    printf("&d1: %p\n", &d1);
-    printf("&d2: %p\n", &d2);
-    printf("&d3: %p\n", &d3);
-    printf("&d4: %p\n", &d4);
-    printf("&d5: %p\n", &d5);
-    printf("&d6: %p\n", &d6);
-    printf("&d7: %p\n", &d7);
+    double x0;				        //d8
+    char _Alignas(double) x1;		//d0
+    char x2;				        //cf
+    double x3;				        //c0
+    char x4;				        //bf
+    char _Alignas(double) x5;		//b8
+    char x6;				        //b7
+    char x7;				        //a8
+    double x8;
+
+    printf("x0: %p\n", &x0);
+    printf("x1: %p\n", &x1);
+    printf("x2: %p\n", &x2);
+    printf("x3: %p\n", &x3);
+    printf("x4: %p\n", &x4);
+    printf("x5: %p\n", &x5);
+    printf("x6: %p\n", &x6);
+    printf("x7: %p\n", &x7);
+    printf("x8: %p\n", &x8);
+
+    printf("x5 = %zd\n", sizeof(x5));
+    printf("x8 = %zd\n", sizeof(x8));
 
     return 0;
 }
