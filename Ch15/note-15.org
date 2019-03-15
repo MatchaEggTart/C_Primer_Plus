@@ -709,6 +709,7 @@ union Views {
 #+END_SRC
 
 - 图示
+#+BEGIN_SRC
 [x]  [x]  [x]  [x]  [x]  [x]  [x]  [x]  	double
 a8   a9   aa   ab   ac   ad   ae   af  		x8 -> a8 - af
 
@@ -729,6 +730,7 @@ d0   d1   d2   d3   d4   d5   d6   d7 		x1 -> d0
 
 [x]  [x]  [x]  [x]  [x]  [x]  [x]  [x] 		double
 d8   d9   da   db   dc   dd   de   df  		x0 -> d8 - df
+#+END_SRC
 
 
 - 实际上每个double都用了8个位
@@ -741,7 +743,7 @@ d8   d9   da   db   dc   dd   de   df  		x0 -> d8 - df
 - char对齐值是1，所以可以使用任何位置。
 - 这个系统明显是把char放在对齐的而没使用8个字节末尾。
 
-**** 请参考， 上面都是错的
+**** 请参考，
 https://www.cnblogs.com/VIPler/p/4282584.html
 
 
